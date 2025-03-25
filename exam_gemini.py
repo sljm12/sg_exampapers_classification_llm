@@ -4,6 +4,8 @@ from google import genai
 from google.genai import types
 import tempfile
 import pymupdf
+import json
+import os
 
 SYSTEM_PROMPT="""You are an OCR machine designed to parse Exam Papers. Your job is to look at the image of an exam paper and detect the 2d bounding box of each question in the image as bbox, with the question number as the label and the text of the question as text.
 
@@ -36,6 +38,14 @@ class PdfImagerGenerator:
         pixmap = self.doc[page_num].get_pixmap()
         pixmap.save(filename)
 
+    def process_file(self, dir, prefix, suffix):
+        for i,d in enumerate(self.doc):
+            filename = prefix+str(i)+suffix
+            full_path = os.path.join(dir,filename)
+            print(full_path)
+            self.save_image(full_path, i)
+
+
 class Gemini_Exam:
     def __init__(self, pdf_file_path, client, temp_dir='./temp'):
         self.pdf_file = pdf_file_path
@@ -47,7 +57,9 @@ class Gemini_Exam:
         lines = output.split("\n")
         clean_lines = [l for l in lines if l.startswith("```") is False]
         return "\n".join(clean_lines)
-        
+    
+    def num_pages(self):
+        return len(self.image_generator.doc)        
 
     def generate(self, page_num):
         
@@ -87,7 +99,7 @@ class Gemini_Exam:
             max_output_tokens=8192,
             response_mime_type="text/plain",
             system_instruction=[
-                types.Part.from_text(text="""You are an OCR machine designed to parse Exam Papers. Your job is to look at the image of an exam paper and detect the 2d bounding box of each question in the image, with the question number as the label and the text of the question as text.
+                types.Part.from_text(text="""You are an OCR machine designed to parse Exam Papers. Your job is to look at the image of an exam paper and detect the 2d bounding box of each question in the image as bbox, with the question number as the label and the text of the question as text.
 
     Each question will start with a number and may have images, charts and tables. Make sure the bbox coordinates covers both the question as well as the charts and images.
 
@@ -105,15 +117,31 @@ class Gemini_Exam:
             output = output + chunk.text
             
         temp_file.close()
-        return self.clean_json(output)
+        return json.loads(self.clean_json(output))
 
 if __name__ == "__main__":
-
+    '''
     client = genai.Client(
         api_key=os.environ.get("GEMINI_API_KEY"),
     )  
     
-    exam_parser = Gemini_Exam("2024-P6-Maths-Prelim Exam-ACSJ.pdf",client,temp_dir="./temp")
+    file="2023-P6-Maths-Weighted Assessment 1-Raffles.pdf"
+
+    results = []
+    metadata = {
+        "filename":file,
+
+    }
+    exam_parser = Gemini_Exam("2023-P6-Maths-Weighted Assessment 1-Raffles.pdf",client,temp_dir="./temp")
+    exam_parser.num_pages()
     output = exam_parser.generate(1)
-    print()
+    r = {
+        
+    }
+    results.append(output)
+    #print()
     print(output)
+    '''
+
+    image_gen = PdfImagerGenerator("2023-P6-Maths-Weighted Assessment 1-Raffles.pdf")
+    image_gen.process_file("./2023-P6-Maths-Weighted Assessment 1-Raffles","2023-P6-Maths-Weighted Assessment 1-Raffles",".png")

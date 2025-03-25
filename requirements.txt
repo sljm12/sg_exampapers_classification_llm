@@ -1,2 +1,4 @@
 olmocr
 openai
+pymupdf
+google-genai
