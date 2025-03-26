@@ -6,6 +6,8 @@ import tempfile
 import pymupdf
 import json
 import os
+import glob
+from pathlib import Path
 
 SYSTEM_PROMPT="""You are an OCR machine designed to parse Exam Papers. Your job is to look at the image of an exam paper and detect the 2d bounding box of each question in the image as bbox, with the question number as the label and the text of the question as text.
 
@@ -67,13 +69,17 @@ class Gemini_Exam:
         print(temp_file.name)
         temp_file.close()
         self.image_generator.save_image(temp_file.name, page_num)
-                
+        
+        return self.generate_with_image_file(temp_file.name)
+    
+    
+    def generate_with_image_file(self, image_file_path):
         #Files
         files = [
             # Make the file available in local system working directory
             
             #client.files.upload(file="Screenshot 2025-03-24 111132.png"),
-            self.client.files.upload(file=temp_file.name),                
+            self.client.files.upload(file=image_file_path),                
         ]
         
         model = "gemini-2.0-flash"
@@ -115,16 +121,14 @@ class Gemini_Exam:
         ):
             #print(chunk.text, end="")
             output = output + chunk.text
-            
-        temp_file.close()
+                    
         return json.loads(self.clean_json(output))
 
 if __name__ == "__main__":
-    '''
-    client = genai.Client(
-        api_key=os.environ.get("GEMINI_API_KEY"),
-    )  
     
+    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"),)  
+    
+    '''
     file="2023-P6-Maths-Weighted Assessment 1-Raffles.pdf"
 
     results = []
@@ -143,5 +147,15 @@ if __name__ == "__main__":
     print(output)
     '''
 
-    image_gen = PdfImagerGenerator("2023-P6-Maths-Weighted Assessment 1-Raffles.pdf")
-    image_gen.process_file("./2023-P6-Maths-Weighted Assessment 1-Raffles","2023-P6-Maths-Weighted Assessment 1-Raffles",".png")
+    #image_gen = PdfImagerGenerator("2024-P6-Maths-Prelim Exam-ACSJ.pdf")
+    #image_gen.process_file("./2024-P6-Maths-Prelim Exam-ACSJ","2024-P6-Maths-Prelim Exam-ACSJ",".png")
+    
+    image_file = "./2024-P6-Maths-Prelim Exam-ACSJ/2024-P6-Maths-Prelim Exam-ACSJ3.png"
+    exam_parser = Gemini_Exam("2024-P6-Maths-Prelim Exam-ACSJ.pdf",client,temp_dir="./temp")
+    output = exam_parser.generate_with_image_file(image_file)
+    image_file_path = Path(image_file)
+    print(image_file_path.name)
+    print(output)
+    output_file = Path(image_file+".json")
+    with output_file.open("w", encoding="utf-8") as f:
+        json.dump(output, f)
