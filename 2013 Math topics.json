@@ -1,0 +1,116 @@
+{
+    "NUMBER AND ALGEBRA": [
+      {
+        "Sub-strand": "WHOLE NUMBERS",
+        "Topics": [
+          "Numbers up to 100",
+          "Addition and Subtraction",
+          "Multiplication and Division",
+          "Numbers up to 1000",
+          "Numbers up to 10 000",
+          "Numbers up to 100 000",
+          "Factors and Multiples",
+          "Four Operations",
+          "Numbers up to 10 million"
+        ]
+      },
+      {
+        "Sub-strand": "FRACTIONS",
+        "Topics": [
+          "Fraction of a Whole",
+          "Addition and Subtraction",
+          "Equivalent fractions",
+          "Addition and subtraction",
+          "Mixed Numbers and Improper Fractions",
+          "Fraction of a Set of Objects",
+          "Addition and Subtraction",
+          "Fraction and Division",
+          "Four Operations"
+        ]
+      },
+      {
+        "Sub-strand": "DECIMALS",
+        "Topics": [
+          "Decimals up to 3 decimal places",
+          "Addition and Subtraction",
+          "Multiplication and Division",
+          "Four Operations"
+        ]
+      },
+      {
+        "Sub-strand": "PERCENTAGE",
+        "Topics": [
+          "Money",
+          "Percentage"
+        ]
+      },
+      {
+        "Sub-strand": "RATIO",
+        "Topics": [
+          "Ratio"
+        ]
+      },
+      {
+        "Sub-strand": "RATE AND SPEED",
+        "Topics": [
+          "Rate",
+          "Distance, Time and Speed"
+        ]
+      },
+      {
+        "Sub-strand": "ALGEBRA",
+        "Topics": [
+          "Algebra"
+        ]
+      }
+    ],
+    "MEASUREMENT AND GEOMETRY": [
+      {
+        "Sub-strand": "MEASUREMENT",
+        "Topics": [
+          "Length",
+          "Time",
+          "Length, Mass and Volume",
+          "Area and Perimeter"
+        ]
+      },
+      {
+        "Sub-strand": "GEOMETRY",
+        "Topics": [
+          "2D Shapes",
+          "3D Shapes",
+          "Angles",
+          "Perpendicular and Parallel Lines",
+          "Triangle",
+          "Parallelogram, Rhombus and Trapezium",
+          "Special Quadrilaterals",
+          "Nets"
+        ]
+      },
+      {
+        "Sub-strand": "AREA AND VOLUME",
+        "Topics": [
+          "Area of Triangle",
+          "Volume of Cube and Cuboid",
+          "Area and Circumference of Circle"
+        ]
+      }
+    ],
+    "STATISTICS": [
+      {
+        "Sub-strand": "DATA REPRESENTATION AND INTERPRETATION",
+        "Topics": [
+          "Picture Graphs",
+          "Picture Graphs with Scales",
+          "Bar Graphs",
+          "Pie Charts"
+        ]
+      },
+      {
+        "Sub-strand": "DATA ANALYSIS",
+        "Topics": [
+          "Average of a Set of Data"
+        ]
+      }
+    ]
+  }
