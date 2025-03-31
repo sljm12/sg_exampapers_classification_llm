@@ -13,7 +13,11 @@ SYSTEM_PROMPT="""You are an OCR machine designed to parse Exam Papers. Your job 
 
 Each question will start with a number and may have images, charts and tables. Make sure the bbox coordinates covers both the question as well as the charts and images.
 
+If there are sub parts to the questions example that starts with an "alphabet" (example "a" or "10 a") please extend the bounding box to cover the subparts as one question. 
+
 Disregard the "Ans" boxes. Only output the questions in the final json.
+
+If the image file has no questions, return an empty json object like {}
 
 TOPICS:
 Numbers up to 100
@@ -165,11 +169,38 @@ class Gemini_Exam:
                     
         return json.loads(self.clean_json(output))
     
-def process_images_dir(dir,vllm):
+def create_directory_if_not_exists(directory_path):
+  """
+  Creates a directory if it does not exist.
+
+  Args:
+    directory_path: The path to the directory.
+  """
+  if not os.path.exists(directory_path):
+    try:
+      os.makedirs(directory_path)  # Use makedirs to create nested directories
+      print(f"Directory '{directory_path}' created.")
+    except OSError as e:
+      print(f"Error creating directory '{directory_path}': {e}")
+  else:
+    print(f"Directory '{directory_path}' already exists.")
+
+
+def process_images_dir(dir,vllm, skip=[]):
     files = glob.glob(os.path.join(dir,"*.png"))
     print(files)
     for f in files:
-        process_file(vllm, f)
+        page_num = extract_page_num(f)
+        if page_num in skip:
+            pass
+            print("Skipping "+f)
+        else:
+            process_file(vllm, f)
+
+def extract_page_num(filepath):
+    path = Path(filepath)
+    splits = path.name.split(".")[0].split("_")
+    return int(splits[-1])
 
 def process_file(vllm, f):
     output = vllm.generate_with_image_file(f)
@@ -183,8 +214,7 @@ def process_file(vllm, f):
 
 if __name__ == "__main__":
     
-    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"),)  
-    exam_parser = Gemini_Exam(client)
+    
 
     '''
     file="2023-P6-Maths-Weighted Assessment 1-Raffles.pdf"
@@ -205,8 +235,7 @@ if __name__ == "__main__":
     print(output)
     '''
 
-    image_gen = PdfImagerGenerator("2023-P6-Maths-Weighted Assessment 1-Raffles.pdf")
-    image_gen.process_file("./temp1","2023-P6-Maths-Weighted Assessment 1-Raffles",".png")
+    
     
     
     '''
@@ -221,4 +250,20 @@ if __name__ == "__main__":
         json.dump(output, f)'
     '''
 
-    #process_images_dir("./2023-P6-Maths-Weighted Assessment 1-Raffles", exam_parser)
+    pdf_filename = "2024-P6-Maths-Prelim Exam-Catholic High.pdf"
+    image_gen = PdfImagerGenerator(pdf_filename)
+    pdf_path = Path(pdf_filename)
+    just_name = pdf_path.name.split(".")[0]
+    pdf_images_path = os.path.join("./",just_name)
+    create_directory_if_not_exists(pdf_images_path)
+
+    image_gen.process_file(pdf_images_path,just_name +"_",".png")
+
+'''
+    client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"),)  
+    exam_parser = Gemini_Exam(client)
+    skips = [0,21,22]
+    skips = skips + list(range(37,62))
+    process_images_dir("./2024-P6-Maths-Prelim Exam-ACSP", exam_parser, skip=skips)
+    #process_file(exam_parser, "./2024-P6-Maths-Prelim Exam-ACSJ/2024-P6-Maths-Prelim Exam-ACSJ_18.png")
+'''
