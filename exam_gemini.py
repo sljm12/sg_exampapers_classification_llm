@@ -264,6 +264,6 @@ if __name__ == "__main__":
     exam_parser = Gemini_Exam(client)
     skips = [0,21,22]
     skips = skips + list(range(37,62))
-    process_images_dir("./2024-P6-Maths-Prelim Exam-ACSP", exam_parser, skip=skips)
+    process_images_dir("./2024-P6-Maths-Prelim Exam-Catholic High", exam_parser, skip=skips)
     #process_file(exam_parser, "./2024-P6-Maths-Prelim Exam-ACSJ/2024-P6-Maths-Prelim Exam-ACSJ_18.png")
 '''
