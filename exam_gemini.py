@@ -101,7 +101,7 @@ class PdfImagerGenerator:
         for i,d in enumerate(self.doc):
             filename = prefix+str(i).zfill(self.doc_length_str)+suffix
             full_path = os.path.join(dir,filename)
-            print(full_path)
+            #print(full_path)
             self.save_image(full_path, i)
 
     def generate_image_tempfile(self, dir, page_num):
