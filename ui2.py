@@ -4,20 +4,33 @@ from exam_gemini import PdfImagerGenerator, create_directory_if_not_exists, Gemi
 from pathlib import Path
 from google import genai
 import glob
+import json
+
 paper_root = "./papers"
 
 client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"),)  
 exam_parser = Gemini_Exam(client)
 
 class GradioAppState:
-    def __init__(self):
+    def __init__(self, paper_root):
         self.current_upload_dir=None
         self.paper_root = paper_root
 
     def get_paper_dir(self, paper_name):
         return os.path.join(self.paper_root, paper_name)
+    
 
-appState = GradioAppState()
+def get_paper_json(paper_dir, index):
+    j_files = glob.glob(paper_dir+"/*.png")
+    num_files = len(j_files)
+    basename = os.path.basename(paper_dir)
+    filename = basename +"_"+str(index).zfill(len(str(num_files)))
+    print(filename)
+    return filename
+    
+    
+
+appState = GradioAppState(paper_root)
 
 def process_file(file_obj):
     if file_obj is None:
@@ -105,6 +118,7 @@ with gr.Blocks() as demo:
             print(selected, skip_text)
             l = skip_text
             l= l+" "+str(selected)
+            
             return l
         
         def call_llm_fn(skip_text):
@@ -126,9 +140,25 @@ with gr.Blocks() as demo:
         call_llm_btn.click(call_llm_fn, inputs=skip_text, outputs=processing_status)
         
     with gr.Tab("Papers"):
-        refresh_papers = gr.Button("Refresh")
-        papers_list = gr.Dropdown(choices=['a','b'], interactive=True)        
-        papers_gallery = gr.Gallery()
+        with gr.Row():    
+            papers_list = gr.Dropdown(choices=['a','b'], interactive=True, scale=5)
+            refresh_papers = gr.Button("Refresh", scale=1)
+            papers_page_selected = gr.Text()
+
+        with gr.Row():
+            papers_status = gr.Text()
+        with gr.Row():
+            papers_gallery = gr.Gallery(allow_preview=False, scale=1)        
+            annotated = gr.AnnotatedImage(scale=1)
+
+        def get_papers_page_select(papers_list, evt: gr.SelectData):            
+            print("Select", papers_list)
+            dir_path = appState.get_paper_dir(papers_list)
+            print("Select - Dir Path", dir_path)
+            get_paper_json(dir_path,evt.index)
+            return evt.index
+
+        papers_gallery.select(get_papers_page_select,papers_list,papers_page_selected)
 
         refresh_papers.click(refresh_papers_click, outputs=papers_list)    
         papers_list.change(papers_list_click, inputs=papers_list, outputs = papers_gallery)
